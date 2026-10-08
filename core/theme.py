@@ -34,11 +34,12 @@ html, body, [class*="css"], .stApp {{ font-family: 'IBM Plex Sans', system-ui, s
 .block-container {{ padding-top: 1.2rem; padding-bottom: 3rem; max-width: 1500px; }}
 header[data-testid="stHeader"] {{ background: transparent; }}
 
-.hero {{ background: {NAVY}; border-bottom: 5px solid {ORANGE}; border-radius: 6px; padding: 22px 28px;
+.hero {{ background: {NAVY}; border-bottom: 5px solid {ORANGE}; border-radius: 6px; padding: 16px 28px;
         display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 18px; }}
 .hero h1 {{ color: #fff; font-size: 1.65rem; font-weight: 700; margin: 0; letter-spacing: .1px; }}
 .hero p {{ color: #C9D6EA; margin: 4px 0 0; font-size: .95rem; }}
-.hero .co {{ text-align: right; color: #fff; }}
+.hero .co {{ text-align: right; color: #fff; padding-right: 96px; }}
+div[data-testid="stElementContainer"]:has(.hero) {{ position: sticky; top: 0.4rem; z-index: 100; }}
 .hero .co b {{ font-size: 1.15rem; color: {ORANGE}; display: block; }}
 .hero .co span {{ color: #C9D6EA; font-size: .85rem; }}
 

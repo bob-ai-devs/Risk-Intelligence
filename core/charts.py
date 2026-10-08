@@ -106,7 +106,7 @@ def gauge(score: float, label: str) -> go.Figure:
 
 
 def branch_radar(branches: list[dict]) -> go.Figure:
-    names = [BY_ID[b["id"]].short for b in branches]
+    names = [BY_ID[b["id"]].tagged_short for b in branches]
     vals = [b["score"] for b in branches]
     fig = go.Figure(go.Scatterpolar(r=vals + vals[:1], theta=names + names[:1], fill="toself",
                                     fillcolor="rgba(242,107,33,0.25)", line=dict(color=T.ORANGE, width=3),
@@ -114,19 +114,19 @@ def branch_radar(branches: list[dict]) -> go.Figure:
     fig.update_layout(polar=dict(radialaxis=dict(range=[-100, 100], tickvals=[-100, -50, 0, 50, 100],
                                                  gridcolor=T.LINE), angularaxis=dict(gridcolor=T.LINE)),
                       showlegend=False)
-    return _base(fig, 430, title="Impact footprint across the framework", margin=dict(l=60, r=60, t=60, b=30))
+    return _base(fig, 520, title="Impact footprint across the framework", margin=dict(l=130, r=130, t=60, b=40))
 
 
 def branch_bars(branches: list[dict]) -> go.Figure:
     b = sorted(branches, key=lambda x: x["score"])
     fig = go.Figure(go.Bar(
-        x=[x["score"] for x in b], y=[BY_ID[x["id"]].name for x in b], orientation="h",
+        x=[x["score"] for x in b], y=[BY_ID[x["id"]].label for x in b], orientation="h",
         marker_color=[T.score_color(x["score"]) if x["direction"] != "none" else "#D5DAE1" for x in b],
         text=[f"{x['score']:+d}" if x["direction"] != "none" else "no signal" for x in b], textposition="outside",
         hovertemplate="%{y}: %{x:+d}<extra></extra>"))
     fig.add_vline(x=0, line_color=T.INK, line_width=1)
-    return _base(fig, 430, title="Impact by branch (negative to positive)",
-                 xaxis=dict(range=[-110, 110], title="Impact score"), margin=dict(l=10, r=40, t=40, b=10))
+    return _base(fig, 520, title="Impact by risk area (negative to positive)",
+                 xaxis=dict(range=[-110, 110], title="Impact score"), margin=dict(l=10, r=50, t=40, b=10))
 
 
 def impact_heatmap(analysis: dict, titles: dict[int, str]) -> go.Figure | None:
@@ -139,13 +139,13 @@ def impact_heatmap(analysis: dict, titles: dict[int, str]) -> go.Figure | None:
         for im in h["impacts"]:
             z[i, cols.index(im["branch"])] = im["score"]
     ylabels = [f"#{h['n']} {titles.get(h['n'], '')[:55]}" for h in rows]
-    fig = go.Figure(go.Heatmap(z=z, x=[BY_ID[c].short for c in cols], y=ylabels, colorscale=DIVERGING,
+    fig = go.Figure(go.Heatmap(z=z, x=[BY_ID[c].tagged_short for c in cols], y=ylabels, colorscale=DIVERGING,
                                zmid=0, zmin=-100, zmax=100, xgap=2, ygap=2, hoverongaps=False,
                                colorbar=dict(title="Impact", thickness=10)))
     fig.update_yaxes(autorange="reversed")
     fig.update_xaxes(tickangle=-40)
-    return _base(fig, max(300, 26 * len(rows) + 160), title="Which headline hits which branch",
-                 margin=dict(l=10, r=10, t=40, b=90))
+    return _base(fig, max(320, 26 * len(rows) + 230), title="Which headline hits which branch",
+                 margin=dict(l=10, r=10, t=40, b=150))
 
 
 def tone_vs_impact(df: pd.DataFrame) -> go.Figure:

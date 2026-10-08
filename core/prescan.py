@@ -16,6 +16,7 @@ KEYWORDS = {
                     "mtm", "securities", "bond portfolio"],
     "operational_risk": ["cyber", "outage", "fraud", "hack", "breach", "phishing", "scam", "data leak", "downtime",
                          "system failure", "mis-selling", "misselling", "glitch"],
+    "counterparty_cva": ["derivative", "counterparty", "cva", "otc", "swap", "hedg", "margin call", "collateral call"],
     "concentration_risk": ["concentration", "large borrower", "large exposure", "group exposure", "corporate account",
                            "single borrower", "exposure to"],
     "irrbb": ["repo rate", "rate cut", "rate hike", "interest rate", "margin", "nim", "deposit rate", "mclr",
