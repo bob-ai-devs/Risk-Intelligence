@@ -47,3 +47,9 @@ assert not at.exception, at.exception
 print("analysis stored:", bool(at.session_state.analysis), at.session_state.analysis["result"]["overall"]["label"])
 print("errors:", [e.value for e in at.error])
 print("markdown count", len(at.markdown), "dataframes", len(at.dataframe))
+
+# hero banner must be the first main element on every run, including after fetch
+assert "hero" in at.main.markdown[0].value, "hero missing"
+print("hero first:", True)
+labels = [e.label for e in at.expander]
+print([l for l in labels if "Pillar" in l or "Beyond" in l][:14])
