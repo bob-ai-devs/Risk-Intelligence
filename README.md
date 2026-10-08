@@ -2,7 +2,7 @@
 
 Streamlit dashboard that pulls up to 100 headlines per week for a bank, scores each with a RoBERTa
 sentiment model, and uses Gemini Flash-Lite to estimate the impact of the headlines you tick on
-13 risk areas (Basel III pillars plus RBI/Indian context) and on the bank overall.
+14 risk areas, each tagged Pillar 1, 2, 3 or Beyond Basel and on the bank overall.
 Styled in Bank of Baroda orange and deep blue.
 
 ## Features
@@ -33,7 +33,7 @@ core/news.py            Google News / NewsAPI fetch, de-dup, publisher classific
 core/sentiment.py       RoBERTa scoring with fallback
 core/prescan.py         keyword triage of risk areas
 core/gemini_analyzer.py prompt, call, JSON validation
-core/taxonomy.py        the 13 risk areas and their metrics
+core/taxonomy.py        the 14 risk areas and their metrics
 core/charts.py          Plotly figures
 core/theme.py           colours and CSS
 tests/test_app.py       headless smoke test (demo data, mocked Gemini)

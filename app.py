@@ -25,6 +25,24 @@ for k, v in {"raw_df": None, "selected_ids": set(), "editor_ver": 0, "analysis":
              "company": "", "terms": [], "is_demo": False, "sent_method": "", "fetched_at": None}.items():
     ss.setdefault(k, v)
 
+hero_slot = st.empty()
+
+
+def render_hero(company_name: str, sub: str) -> None:
+    hero_slot.markdown(
+        f'<div class="hero"><div><h1>Bank News Risk Intelligence</h1>'
+        f'<p>Weekly headlines, RoBERTa tone, and Gemini impact across the Basel III and RBI risk framework</p></div>'
+        f'<div class="co"><b>{T.esc(company_name or "Choose a bank")}</b><span>{T.esc(sub)}</span></div></div>',
+        unsafe_allow_html=True)
+
+
+def hero_sub() -> str:
+    sub = f"Fetched {ss.fetched_at:%d %b %Y, %H:%M} IST" if ss.fetched_at else "No data loaded yet"
+    return sub + (" (demo data)" if ss.is_demo else "")
+
+
+render_hero(ss.company, hero_sub())   # drawn first on every run so it never disappears
+
 TONE_ICON = {"Positive": "🟢 Positive", "Neutral": "⚪ Neutral", "Negative": "🔴 Negative"}
 
 
@@ -75,6 +93,7 @@ if fetch_clicked:
     if not company.strip():
         st.sidebar.error("Enter a company name first.")
     else:
+        render_hero(company.strip(), "Fetching and scoring headlines...")
         with st.status("Working on it", expanded=True) as status:
             try:
                 st.write("Fetching headlines")
@@ -98,16 +117,7 @@ if fetch_clicked:
             except Exception as e:
                 status.update(label="Could not fetch news", state="error")
                 st.error(f"{type(e).__name__}: {e}")
-
-# --------------------------------------------------------------------- hero
-sub = (f"Fetched {ss.fetched_at:%d %b %Y, %H:%M} IST" if ss.fetched_at else "No data loaded yet")
-if ss.is_demo:
-    sub += " (demo data)"
-st.markdown(
-    f'<div class="hero"><div><h1>Bank News Risk Intelligence</h1>'
-    f'<p>Weekly headlines, RoBERTa tone, and Gemini impact across the Basel III and RBI risk framework</p></div>'
-    f'<div class="co"><b>{T.esc(ss.company or "Choose a bank")}</b><span>{T.esc(sub)}</span></div></div>',
-    unsafe_allow_html=True)
+        render_hero(ss.company, hero_sub())
 
 raw: pd.DataFrame | None = ss.raw_df
 if raw is None:
@@ -115,7 +125,7 @@ if raw is None:
     for col, (h, b) in zip((c1, c2, c3), [
         ("1. Fetch", "Type a bank in the sidebar and press Fetch. The app pulls up to 100 headlines from the last week."),
         ("2. Filter", "Pick the publishers you trust, drop blogs and social posts, and keep only headlines that name the bank."),
-        ("3. Assess", "Tick headlines and let Gemini score the impact on 13 risk areas and on the bank overall.")]):
+        ("3. Assess", f"Tick headlines and let Gemini score the impact on {len(BRANCHES)} risk areas and on the bank overall.")]):
         col.markdown(f'<div class="panel"><h4>{h}</h4>{T.esc(b)}</div>', unsafe_allow_html=True)
     st.info("No Gemini key or internet? Switch on demo data in the sidebar to explore every feature.")
     st.stop()
@@ -155,7 +165,7 @@ with st.container(border=True):
     tone_filter = f2.multiselect("Tone", ["Positive", "Neutral", "Negative"],
                                  default=["Positive", "Neutral", "Negative"])
     area_filter = f3.multiselect("Risk area (keyword scan)", [b.id for b in BRANCHES],
-                                 format_func=lambda i: f"{BY_ID[i].icon} {BY_ID[i].short}")
+                                 format_func=lambda i: f"{BY_ID[i].icon} {BY_ID[i].tagged_short}")
     query = f4.text_input("Search headlines", placeholder="e.g. NPA, RBI, fraud")
 
 flt = raw[raw["publisher"].isin(ss.pub_sel) & raw["sentiment_label"].isin(tone_filter)].copy()
@@ -210,11 +220,11 @@ with tab_over:
         r3a.plotly_chart(C.sentiment_hist(flt))
         r3b.plotly_chart(C.type_sentiment(flt))
         counts = {b.id: int(flt["areas"].map(lambda a, i=b.id: i in a).sum()) for b in BRANCHES}
-        cdf = pd.DataFrame({"area": [f"{BY_ID[i].icon} {BY_ID[i].short}" for i in counts], "n": list(counts.values())})
+        cdf = pd.DataFrame({"area": [f"{BY_ID[i].icon} {BY_ID[i].tagged_short}" for i in counts], "n": list(counts.values())})
         cdf = cdf.sort_values("n")
         import plotly.graph_objects as go
         fig = go.Figure(go.Bar(x=cdf["n"], y=cdf["area"], orientation="h", marker_color=T.NAVY))
-        r3c.plotly_chart(C._base(fig, 300, title="Risk areas in the news (keyword scan)"))
+        r3c.plotly_chart(C._base(fig, 300, title="Risk areas in the news (keyword scan)", margin=dict(l=10, r=10, t=40, b=10)))
 
         lc, rc = st.columns(2)
         for col, title, d in ((lc, "Most positive headlines", flt.nlargest(5, "sentiment_score")),
@@ -257,7 +267,7 @@ with tab_head:
             "Headline": view["title"].values,
             "Tone": [TONE_ICON[t] for t in view["sentiment_label"]],
             "Score": view["sentiment_score"].values,
-            "Areas": [", ".join(BY_ID[i].short for i in a_) for a_ in view["areas"]],
+            "Areas": [", ".join(BY_ID[i].tagged_short for i in a_) for a_ in view["areas"]],
             "Link": view["url"].values,
         }, index=view.index)
         edited = st.data_editor(
@@ -342,7 +352,7 @@ with tab_ai:
             for br in [b for b in BRANCHES if b.group == grp]:
                 d = by_branch[br.id]
                 tag = f"{d['score']:+d}" if d["direction"] != "none" else "no signal"
-                with st.expander(f"{br.icon} {br.name}: {tag}", expanded=abs(d["score"]) >= 30):
+                with st.expander(f"{br.icon} {br.label}: {tag}", expanded=abs(d["score"]) >= 30):
                     if d["direction"] == "none":
                         st.caption(d["reasoning"])
                         continue
@@ -365,7 +375,7 @@ with tab_ai:
         hd = pd.DataFrame(res["headlines"])
         if not hd.empty:
             hd = hd.merge(idf, on="n", how="left")
-            hd["areas"] = hd["impacts"].map(lambda im: ", ".join(BY_ID[i["branch"]].short for i in im))
+            hd["areas"] = hd["impacts"].map(lambda im: ", ".join(BY_ID[i["branch"]].tagged_short for i in im))
             st.plotly_chart(C.tone_vs_impact(hd))
             show = hd.assign(abs_i=hd["net_impact"].abs()).sort_values("abs_i", ascending=False)
             st.dataframe(show[["n", "title", "publisher", "relevance", "materiality", "net_impact",
@@ -398,8 +408,8 @@ with tab_ai:
 
 # ---------------------------------------------------------------- framework
 with tab_fw:
-    st.markdown("Every Gemini assessment is scored against these 13 areas. They follow the three Basel III pillars "
-                "in the RBI Master Circular, plus the Indian supervisory areas that sit outside it. "
+    st.markdown(f"Every Gemini assessment is scored against these {len(BRANCHES)} areas. Each is tagged with its Basel pillar, "
+                "or **Beyond Basel** where it comes from RBI and Indian practice instead. "
                 "**Signal** tells you how much a headline alone can reveal.")
     for grp in GROUPS:
         T.section(grp)
@@ -408,7 +418,7 @@ with tab_fw:
             pills = "".join(f'<span class="pill">{T.esc(m)}</span>' for m in br.metrics)
             sig = T.badge(f"{br.signal} signal", T.ORANGE if br.signal == "Direct" else T.NAVY)
             cols[i % 2].markdown(
-                f'<div class="card" style="margin-bottom:12px"><h4>{br.icon} {T.esc(br.name)} &nbsp; {sig}</h4>'
+                f'<div class="card" style="margin-bottom:12px"><h4>{br.icon} {T.esc(br.label)} &nbsp; {sig}</h4>'
                 f'<small style="color:{T.MUTED}">{T.esc(br.signal_note)}</small><br>{pills}</div>',
                 unsafe_allow_html=True)
 
@@ -420,7 +430,7 @@ with tab_about:
 1. Headlines for the last *N* days come from Google News (or NewsAPI) and are de-duplicated.
 2. Publishers are tagged as trusted, press release, blog or social, or other. You choose which to keep.
 3. A RoBERTa model scores each headline: positive minus negative probability, from -1 to +1.
-4. You tick headlines. `{DEFAULT_MODEL}` rates their impact on 13 risk areas and on the bank overall, from -100 to +100.
+4. You tick headlines. `{DEFAULT_MODEL}` rates their impact on {len(BRANCHES)} risk areas and on the bank overall, from -100 to +100.
 
 **Read the results with care**
 
