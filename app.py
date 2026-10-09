@@ -168,7 +168,14 @@ with st.container(border=True):
                                  format_func=lambda i: f"{BY_ID[i].icon} {BY_ID[i].tagged_short}")
     query = f4.text_input("Search headlines", placeholder="e.g. NPA, RBI, fraud")
 
-flt = raw[raw["publisher"].isin(ss.pub_sel) & raw["sentiment_label"].isin(tone_filter)].copy()
+if len(ss.pub_sel) > 0 and len(tone_filter) > 0:
+    flt = raw[raw["publisher"].isin(ss.pub_sel) & raw["sentiment_label"].isin(tone_filter)].copy()
+elif len(ss.pub_sel) == 0:
+    flt = pd.DataFrame()
+    st.warning("Select at least one publisher")
+elif len(tone_filter) == 0:
+    flt = pd.DataFrame()
+    st.warning("Select at least one tone / sentiment")
 if only_mention:
     flt = flt[flt["title"].map(lambda t: mentions_company(t, ss.terms))]
 if area_filter:
