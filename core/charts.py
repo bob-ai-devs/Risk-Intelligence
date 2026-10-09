@@ -125,7 +125,7 @@ def branch_bars(branches: list[dict]) -> go.Figure:
         text=[f"{x['score']:+d}" if x["direction"] != "none" else "no signal" for x in b], textposition="outside",
         hovertemplate="%{y}: %{x:+d}<extra></extra>"))
     fig.add_vline(x=0, line_color=T.INK, line_width=1)
-    return _base(fig, 520, title="Impact by risk area (negative to positive)",
+    return _base(fig, 520, title="Impact by risk area (positive to negative)",
                  xaxis=dict(range=[-110, 110], title="Impact score"), margin=dict(l=10, r=50, t=40, b=10))
 
 
