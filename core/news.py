@@ -66,7 +66,8 @@ def classify_publisher(name: str, domain: str = "") -> str:
 
 def _domain(url: str) -> str:
     try:
-        return (urlparse(url).netloc or "").lower().removeprefix("www.")
+        host = (urlparse(url).netloc or "").lower()
+        return host[4:] if host.startswith("www.") else host
     except Exception:
         return ""
 

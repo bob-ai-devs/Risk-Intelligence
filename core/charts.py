@@ -4,6 +4,8 @@ from __future__ import annotations
 import re
 from collections import Counter
 
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -37,10 +39,10 @@ def sentiment_trend(df: pd.DataFrame) -> go.Figure:
     g = d.groupby("day").agg(n=("id", "size"), avg=("sentiment_score", "mean")).reset_index()
     fig = go.Figure()
     fig.add_bar(x=g["day"], y=g["n"], name="Headlines", marker_color="#F9C7A8", yaxis="y2",
-                hovertemplate="%{x}: %{y} headlines<extra></extra>", zorder=1)
+                hovertemplate="%{x}: %{y} headlines<extra></extra>")
     fig.add_scatter(x=g["day"], y=g["avg"], name="Avg sentiment", mode="lines+markers",
                     line=dict(color=T.NAVY, width=3), marker=dict(size=8),
-                    hovertemplate="%{x}: %{y:+.2f}<extra></extra>", zorder=2)
+                    hovertemplate="%{x}: %{y:+.2f}<extra></extra>")
     fig.add_hline(y=0, line_dash="dot", line_color=T.NEU)
     return _base(fig, 320, title="Daily sentiment and volume",
                  yaxis=dict(title="Avg sentiment", range=[-1, 1], zeroline=False),
@@ -125,11 +127,11 @@ def branch_bars(branches: list[dict]) -> go.Figure:
         text=[f"{x['score']:+d}" if x["direction"] != "none" else "no signal" for x in b], textposition="outside",
         hovertemplate="%{y}: %{x:+d}<extra></extra>"))
     fig.add_vline(x=0, line_color=T.INK, line_width=1)
-    return _base(fig, 520, title="Impact by risk area (positive to negative)",
+    return _base(fig, 520, title="Impact by risk area (negative to positive)",
                  xaxis=dict(range=[-110, 110], title="Impact score"), margin=dict(l=10, r=50, t=40, b=10))
 
 
-def impact_heatmap(analysis: dict, titles: dict[int, str]) -> go.Figure | None:
+def impact_heatmap(analysis: dict, titles: dict[int, str]) -> Optional[go.Figure]:
     rows = [h for h in analysis["headlines"] if h["impacts"]]
     if not rows:
         return None

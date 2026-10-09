@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import re
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from .taxonomy import BRANCHES, BY_ID, IDS
 
@@ -186,7 +186,7 @@ def analyze(api_key: str, model: str, company: str, items: list[dict],
     cfg = types.GenerateContentConfig(
         temperature=temperature, response_mime_type="application/json", max_output_tokens=8192)
 
-    last_err: Exception | None = None
+    last_err: Optional[Exception] = None
     for attempt in range(2):
         try:
             resp = client.models.generate_content(model=model, contents=prompt, config=cfg)

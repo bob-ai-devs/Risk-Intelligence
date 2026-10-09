@@ -10,7 +10,6 @@ import streamlit as st
 MODEL_OPTIONS = {
     "RoBERTa base: CardiffNLP (general, 3-class)": "cardiffnlp/twitter-roberta-base-sentiment-latest",
     "DistilRoBERTa: financial news (3-class)": "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis",
-    "FinBERT: financial news (3-class)": "ProsusAI/finbert",
 }
 
 POS_WORDS = {
