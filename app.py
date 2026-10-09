@@ -231,7 +231,7 @@ with tab_over:
                               (rc, "Most negative headlines", flt.nsmallest(5, "sentiment_score"))):
             body = "".join(
                 f'<div class="hl"><a href="{T.esc(r.url)}" target="_blank">{T.esc(r.title)}</a><br>'
-                f'<small>{T.esc(r.publisher)} ({r.published}), tone {r.sentiment_score:+.2f}</small></div>' for r in d.itertuples())
+                f'<small>{T.esc(r.publisher)} ({r.published.strftime('%d-%b-%Y')}), tone {r.sentiment_score:+.2f}</small></div>' for r in d.itertuples())
             col.markdown(f'<div class="card"><h4>{title}</h4>{body}</div>', unsafe_allow_html=True)
 
 # ----------------------------------------------------------------- headlines
