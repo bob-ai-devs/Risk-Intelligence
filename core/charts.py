@@ -37,10 +37,10 @@ def sentiment_trend(df: pd.DataFrame) -> go.Figure:
     g = d.groupby("day").agg(n=("id", "size"), avg=("sentiment_score", "mean")).reset_index()
     fig = go.Figure()
     fig.add_bar(x=g["day"], y=g["n"], name="Headlines", marker_color="#F9C7A8", yaxis="y2",
-                hovertemplate="%{x}: %{y} headlines<extra></extra>")
+                hovertemplate="%{x}: %{y} headlines<extra></extra>", zorder=1)
     fig.add_scatter(x=g["day"], y=g["avg"], name="Avg sentiment", mode="lines+markers",
                     line=dict(color=T.NAVY, width=3), marker=dict(size=8),
-                    hovertemplate="%{x}: %{y:+.2f}<extra></extra>")
+                    hovertemplate="%{x}: %{y:+.2f}<extra></extra>", zorder=2)
     fig.add_hline(y=0, line_dash="dot", line_color=T.NEU)
     return _base(fig, 320, title="Daily sentiment and volume",
                  yaxis=dict(title="Avg sentiment", range=[-1, 1], zeroline=False),
