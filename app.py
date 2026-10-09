@@ -168,28 +168,27 @@ with st.container(border=True):
                                  format_func=lambda i: f"{BY_ID[i].icon} {BY_ID[i].tagged_short}")
     query = f4.text_input("Search headlines", placeholder="e.g. NPA, RBI, fraud")
 
-if len(ss.pub_sel) > 0 and len(tone_filter) > 0:
-    flt = raw[raw["publisher"].isin(ss.pub_sel) & raw["sentiment_label"].isin(tone_filter)].copy()
-elif len(ss.pub_sel) == 0:
-    flt = pd.DataFrame()
+if len(ss.pub_sel) == 0:
     st.warning("Select at least one publisher")
 elif len(tone_filter) == 0:
-    flt = pd.DataFrame()
     st.warning("Select at least one tone / sentiment")
-if only_mention:
-    flt = flt[flt["title"].map(lambda t: mentions_company(t, ss.terms))]
-if area_filter:
-    flt = flt[flt["areas"].map(lambda a: any(x in a for x in area_filter))]
-if query.strip():
-    flt = flt[flt["title"].str.contains(query.strip(), case=False, regex=False)]
-flt = flt.reset_index(drop=True)
-st.caption(f"Showing {len(flt)} of {len(raw)} fetched headlines from {flt['publisher'].nunique()} publishers.")
 
-if ss.sent_method.startswith("Keyword fallback"):
-    st.warning(f"{ss.sent_method}. Install `transformers` and `torch` (see requirements.txt) to use RoBERTa.")
-
-tab_over, tab_head, tab_ai, tab_fw, tab_about = st.tabs(
-    ["Overview", "Headlines and selection", "AI impact analysis", "Risk framework", "About"])
+elif len(ss.pub_sel) > 0 and len(tone_filter) > 0:
+    flt = raw[raw["publisher"].isin(ss.pub_sel) & raw["sentiment_label"].isin(tone_filter)].copy()
+    if only_mention:
+        flt = flt[flt["title"].map(lambda t: mentions_company(t, ss.terms))]
+    if area_filter:
+        flt = flt[flt["areas"].map(lambda a: any(x in a for x in area_filter))]
+    if query.strip():
+        flt = flt[flt["title"].str.contains(query.strip(), case=False, regex=False)]
+    flt = flt.reset_index(drop=True)
+    st.caption(f"Showing {len(flt)} of {len(raw)} fetched headlines from {flt['publisher'].nunique()} publishers.")
+    
+    if ss.sent_method.startswith("Keyword fallback"):
+        st.warning(f"{ss.sent_method}. Install `transformers` and `torch` (see requirements.txt) to use RoBERTa.")
+    
+    tab_over, tab_head, tab_ai, tab_fw, tab_about = st.tabs(
+        ["Overview", "Headlines and selection", "AI impact analysis", "Risk framework", "About"])
 
 # ----------------------------------------------------------------- overview
 with tab_over:
