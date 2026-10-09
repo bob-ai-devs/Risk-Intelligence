@@ -65,7 +65,7 @@ def cached_fetch(provider: str, company: str, days: int, max_items: int, _key: s
 with st.sidebar:
     st.markdown("### Search")
     company = st.text_input("Company or bank", value="Bank of Baroda")
-    aliases = st.text_input("Also match these names", value="BoB, Baroda",
+    aliases = st.text_input("Also match these names", value="BoB, Baroda Bank",
                             help="Comma-separated. Used by the 'names the bank' filter.")
     days = st.slider("Look back (days)", 1, 30, 7)
     max_items = st.slider("Max headlines", 20, 100, 100, step=10)
@@ -77,7 +77,7 @@ with st.sidebar:
                      help="Synthetic headlines so you can try every feature without internet or keys.")
 
     st.markdown("### Models")
-    sent_label = st.selectbox("Sentiment model (RoBERTa)", list(MODEL_OPTIONS))
+    sent_label = st.selectbox("Sentiment model (RoBERTa)", list(MODEL_OPTIONS), index=1)
     gem_secret = secret("GEMINI_API_KEY")
     if gem_secret:
         st.success("Gemini key loaded from secrets")
