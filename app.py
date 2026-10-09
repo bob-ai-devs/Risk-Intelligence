@@ -41,6 +41,10 @@ def hero_sub() -> str:
     return sub + (" (demo data)" if ss.is_demo else "")
 
 
+def fmt_day(ts) -> str:
+    return ts.strftime("%d-%b-%Y") if pd.notna(ts) else "date n/a"
+
+
 render_hero(ss.company, hero_sub())   # drawn first on every run so it never disappears
 
 TONE_ICON = {"Positive": "🟢 Positive", "Neutral": "⚪ Neutral", "Negative": "🔴 Negative"}
@@ -119,7 +123,7 @@ if fetch_clicked:
                 st.error(f"{type(e).__name__}: {e}")
         render_hero(ss.company, hero_sub())
 
-raw: pd.DataFrame | None = ss.raw_df
+raw = ss.raw_df  # DataFrame or None
 if raw is None:
     c1, c2, c3 = st.columns(3)
     for col, (h, b) in zip((c1, c2, c3), [
@@ -168,14 +172,14 @@ with st.container(border=True):
                                  format_func=lambda i: f"{BY_ID[i].icon} {BY_ID[i].tagged_short}")
     query = f4.text_input("Search headlines", placeholder="e.g. NPA, RBI, fraud")
 
-if len(ss.pub_sel) == 0 and len(tone_filter) == 0:
-    flt = raw[raw["publisher"].isin(options) & raw["sentiment_label"].isin([["Positive", "Neutral", "Negative"]])].copy()
-elif len(ss.pub_sel) == 0:
-    flt = raw[raw["publisher"].isin(options) & raw["sentiment_label"].isin(tone_filter)].copy()
-elif len(tone_filter) == 0:
-    flt = raw[raw["publisher"].isin(ss.pub_sel) & raw["sentiment_label"].isin(tone_filter)].copy()
-else:
-    flt = raw[raw["publisher"].isin(ss.pub_sel) & raw["sentiment_label"].isin(tone_filter)].copy()
+if not ss.pub_sel or not tone_filter:
+    st.warning("Select at least one publisher and one tone to see results.")
+    st.stop()
+
+flt = raw[raw["publisher"].isin(ss.pub_sel) & raw["sentiment_label"].isin(tone_filter)].copy()
+if flt.empty:
+    st.warning("No headlines match the selected publishers and tones. Select other publishers or tones.")
+    st.stop()
 if only_mention:
     flt = flt[flt["title"].map(lambda t: mentions_company(t, ss.terms))]
 if area_filter:
@@ -238,7 +242,8 @@ with tab_over:
                               (rc, "Most negative headlines", flt.nsmallest(5, "sentiment_score"))):
             body = "".join(
                 f'<div class="hl"><a href="{T.esc(r.url)}" target="_blank">{T.esc(r.title)}</a><br>'
-                f'<small>{T.esc(r.publisher)} ({r.published.strftime('%d-%b-%Y')}), tone {r.sentiment_score:+.2f}</small></div>' for r in d.itertuples())
+                f'<small>{T.esc(r.publisher)} ({fmt_day(r.published)}), tone {r.sentiment_score:+.2f}</small></div>'
+                for r in d.itertuples())
             col.markdown(f'<div class="card"><h4>{title}</h4>{body}</div>', unsafe_allow_html=True)
 
 # ----------------------------------------------------------------- headlines
