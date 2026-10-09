@@ -195,8 +195,6 @@ if ss.sent_method.startswith("Keyword fallback"):
 tab_over, tab_head, tab_ai, tab_fw, tab_about = st.tabs(
     ["Overview", "Headlines and selection", "AI impact analysis", "Risk framework", "About"])
 
-st.rerun()
-
 # ----------------------------------------------------------------- overview
 with tab_over:
     if flt.empty:
