@@ -15,6 +15,11 @@ Styled in Bank of Baroda orange and deep blue.
 - Downloads: filtered headlines (CSV), analysis (JSON), headline impacts (CSV)
 - Demo mode with synthetic headlines for offline use
 
+## Python compatibility
+Tested end to end (headless smoke test with demo data, mocked Gemini, and the warning cases) on Python 3.10, 3.11, 3.12 and 3.13,
+including pandas 2.x and pandas 3.x. Python 3.10 is the minimum because current Streamlit and google-genai require it.
+On Streamlit Cloud choose the Python version under Advanced settings when deploying.
+
 ## Run locally
 ```bash
 pip install -r requirements.txt
