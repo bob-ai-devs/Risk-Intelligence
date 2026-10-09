@@ -22,7 +22,7 @@ T.inject_css()
 ss = st.session_state
 
 for k, v in {"raw_df": None, "selected_ids": set(), "editor_ver": 0, "analysis": None, "history": [],
-             "company": "", "terms": [], "is_demo": False, "sent_method": "", "fetched_at": None}.items():
+             "company": "", "terms": [], "is_demo": False, "sent_method": "", "fetched_at": None, "refresh": False}.items():
     ss.setdefault(k, v)
 
 hero_slot = st.empty()
@@ -94,6 +94,7 @@ with st.sidebar:
     fetch_clicked = st.button("Fetch and score news", type="primary", width="stretch")
 
 if fetch_clicked:
+    ss.refresh = True
     if not company.strip():
         st.sidebar.error("Enter a company name first.")
     else:
@@ -177,6 +178,10 @@ if not ss.pub_sel or not tone_filter:
     st.stop()
 
 flt = raw[raw["publisher"].isin(ss.pub_sel) & raw["sentiment_label"].isin(tone_filter)].copy()
+if ss.refresh:
+    ss.refresh = False
+    st.rerun()
+  
 if flt.empty:
     st.warning("No headlines match the selected publishers and tones. Select other publishers or tones.")
     st.stop()
