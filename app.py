@@ -187,8 +187,8 @@ elif len(ss.pub_sel) > 0 and len(tone_filter) > 0:
     if ss.sent_method.startswith("Keyword fallback"):
         st.warning(f"{ss.sent_method}. Install `transformers` and `torch` (see requirements.txt) to use RoBERTa.")
     
-    tab_over, tab_head, tab_ai, tab_fw, tab_about = st.tabs(
-        ["Overview", "Headlines and selection", "AI impact analysis", "Risk framework", "About"])
+tab_over, tab_head, tab_ai, tab_fw, tab_about = st.tabs(
+    ["Overview", "Headlines and selection", "AI impact analysis", "Risk framework", "About"])
 
 # ----------------------------------------------------------------- overview
 with tab_over:
