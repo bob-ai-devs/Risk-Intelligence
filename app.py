@@ -17,7 +17,7 @@ from core.prescan import scan
 from core.sentiment import MODEL_OPTIONS, cached_score
 from core.taxonomy import BRANCHES, BY_ID, GROUPS
 
-st.set_page_config(page_title="Bank News Risk Intelligence", page_icon="🏦", layout="wide")
+st.set_page_config(page_title="Bank News Risk Intelligence", page_icon="📰", layout="wide")
 T.inject_css()
 ss = st.session_state
 
